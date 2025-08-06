@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Digital Artisans Studio</title>
+<style>
+	body {
+		cursor: crosshair;
+	}
+	p {
+		font-family: "Courier";
+		color: antiquewhite
+	}
+	a {
+		font-family: "Arial";
+		text-decoration: none;
+		color: #8e94b8;
+		cursor: crosshair;
+	}
+	a:hover {
+		text-decoration: underline dotted;
+		color: #8e94b8;
+	}
+	button {
+		border: none;
+		background: #c9c9c9;
+		color: #010101;
+		font-family: "Courier";
+		cursor: crosshair;
+	}
+	#msg {
+		font-family: "Arial";
+		opacity: 0;
+		margin-top: 8px;
+	}
+</style>
+</head>
+<body style="background-image: url(''); background-repeat: none; overflow: hidden; margin:0; padding:0;">
+<img id="img" src="bridge_compressed.jpg" style="display: none;">
+<canvas id="canvas" style="position:absolute; overflow:clip; border: none;">
+</canvas>
+<table id="tbl" style="background:#161616; padding:20px; height:calc(33vh); width:33vw; margin-left:34vw; margin-top:10vh; vertical-align: middle; text-align: right; position: absolute;">
+	<tr><td>
+<div style="background-image: url('bg.gif'); background-repeat: repeat; width:700px; height: 200px;"><img src="logo.gif" alt="Digital Artisans Studio Logo" style="margin-top:20px;margin-left:20px;float:left;"></div>
+<p id="myElement">
+Digital Artisans is a hardware/software development studio.<br/>
+The team is committed to making products of the highest quality.<br/>
+Business inquiries: please contact below.<br/>
+</p>
+<a href="mailto:digitalartisansstudio@proton.me">mailto: digitalartisansstudio@proton.me</a>&nbsp;&nbsp;<button onclick="fn()">Copy to Clipboard</button>
+<div id="msg">copied to clipboard</div>
+</td>
+</tr>
+</table>
+<script>
+	String.prototype.replaceAt = function(index, replacement) {
+    return this.substring(0, index) + replacement + this.substring(index + 1);
+	}
+
+	/* Copy to Clipboard */
+	function fn() {
+		navigator.clipboard.writeText("hello@digitalartisans.studio");
+		var interval;
+		setTimeout(()=>{ 
+			interval = setInterval(()=>{
+				copyAnimation();
+			},10);
+		},250);
+		var msg = document.getElementById("msg");
+		msg.animate(
+			[
+				{ opacity: 1},
+				{ opacity: 0},
+			],
+			{
+				duration: 1000,
+				iterations: 1,
+			},
+		);
+		setTimeout(()=>{clearInterval(interval);},1000);
+		msg.textContent = "copied to clipboard";
+		restoreOriginalImage();
+	}
+	
+	function roll(min,max)
+  {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return (Math.floor(Math.random() * (max - min + 1)) + min);
+  }
+
+	function copyAnimation() 
+	{
+		var msg = document.getElementById("msg");
+		var msgLen = msg.textContent.length;
+		var text = msg.textContent;
+		var randLetter = String.fromCharCode(roll(97,122));
+		var randIndex = roll(0,msgLen-1);
+		msg.textContent = text.replaceAt(randIndex,randLetter);
+		text = msg.textContent;
+	}
+
+	/* Mouse Handler */
+	function mouseMoveHandler(e) {
+		//console.log(e.clientX,e.clientY);
+		glitch(e.clientX,e.clientY);
+	}
+
+	document.addEventListener("mousemove", mouseMoveHandler, false);
+
+
+	/* Canvas Mouseover Function */
+	function glitch(x, y)
+	{
+	  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+	  const pixels = imageData.data;
+	  const band_radius = 10;
+	  const band_width = band_radius*2;
+	  const start_x = x-band_radius;
+	  const end_x = x+band_radius;
+	  const start_x_index = start_x*4;
+	  const end_x_index = end_x*4;
+	  
+	  for (let i = start_x_index; i < canvas.height*canvas.width*4+start_x_index; i += canvas.width*4)
+	  {
+	  	for(let j = 0; j <= band_width; j += 1)
+	  	{
+	  		set_pixels(i+(j*4),i);
+	  	}
+	  }
+	  function set_pixels(from, to)
+	  {
+  		// Get pixel values
+	    const r = pixels[to];
+	    const g = pixels[to+1];
+	    const b = pixels[to+2];
+
+	    // Set pixel values
+	    pixels[from] = r;
+	    pixels[from + 1] = g;
+	    pixels[from + 2] = b;
+	    // Alpha (pixels[i + 3]) remains unchanged
+	  }
+
+	  // Put the modified image data back to the canvas
+	  ctx.putImageData(imageData, 0, 0);
+	}
+
+	/* Canvas */
+	const img = document.getElementById('img');
+	const canvas = document.getElementById('canvas');
+	const ctx = canvas.getContext('2d');
+
+	img.onload = () =>
+	{
+		vw = window.innerWidth;
+		vh = window.innerHeight;
+		canvas.width = vw;
+		canvas.height = vh;
+		ctx.drawImage(img, 0, 0, vw, vh, 0, 0, vw, vh);
+	};
+  
+  setInterval(()=>{
+  	glitch(roll(0,canvas.width),roll(0,canvas.height));
+  }, 1000);
+
+	// Function to restore the original image
+	function restoreOriginalImage() {
+  	ctx.drawImage(img, 0, 0);
+	}
+</script>
+</body>
+</html>
